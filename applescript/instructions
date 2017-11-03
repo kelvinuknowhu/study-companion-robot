@@ -1,0 +1,9 @@
+If you saved your AppleScript as a “.scpt” file, then you can directly run it in the Terminal by typing in the following command: 
+
+>>> osascript ScriptName.scpt
+
+
+You can also run an AppleScript in the Terminal without having a script file. You’ll use the same command with -e option, and will also include the intended script in single-quotes after the command, like this: 
+
+
+>>> osascript -e 'tell application "Twitter" to quit'
