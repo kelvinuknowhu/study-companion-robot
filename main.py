@@ -107,11 +107,12 @@ class RepeatedTimer(object):
 
 def main():
     
+    
     monitor_open_windows()
     
-    # start timer
     timer = RepeatedTimer(15, monitor_open_windows)
     
+    # start timer
     timer.start()
 
     # stop timer

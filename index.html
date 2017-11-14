@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+
+<head>
+    <title>Emotion Detection</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <script src="js/d3.js" type="text/javascript"></script>
+    <script src="js/jquery.js" type="text/javascript"></script>
+    <script src="https://download.affectiva.com/js/3.2/affdex.js"></script>
+</head>
+
+<body>
+    
+    <div id="affdex_elements" style="width:680px;height:480px;"></div>
+    
+    <script>        
+        /*
+           SDK Needs to create video and canvas nodes in the DOM in order to function
+           Here we are adding those nodes a predefined div.
+        */
+        var divRoot = $("#affdex_elements")[0];
+
+        // The captured frame's width in pixels
+        var width = 640;
+
+        // The captured frame's height in pixels
+        var height = 480;
+
+        /*
+           Face detector configuration - If not specified, defaults to
+           affdex.FaceDetectorMode.LARGE_FACES
+           affdex.FaceDetectorMode.LARGE_FACES=Faces occupying large portions of the frame
+           affdex.FaceDetectorMode.SMALL_FACES=Faces occupying small portions of the frame
+        */
+        var faceMode = affdex.FaceDetectorMode.LARGE_FACES;
+        
+        
+
+        //Construct a CameraDetector and specify the image width / height and face detector mode.
+        var detector = new affdex.CameraDetector(divRoot, width, height, faceMode);
+        
+        detector.addEventListener("onInitializeSuccess", function() {
+            console.log('initialized');
+        });
+        
+        detector.addEventListener("onInitializeFailure", function() {
+            console.log('initialization failed');
+        });
+        
+
+        /* 
+          onImageResults success is called when a frame is processed successfully and receives 3 parameters:
+          - Faces: Dictionary of faces in the frame keyed by the face id.
+                   For each face id, the values of detected emotions, expressions, appearane metrics 
+                   and coordinates of the feature points
+          - image: An imageData object containing the pixel values for the processed frame.
+          - timestamp: The timestamp of the captured image in seconds.
+        */
+        //detector.addEventListener("onImageResultsSuccess", function (faces, image, timestamp) {});
+
+
+        
+        //Add a callback to receive the results from processing an image.
+        //The faces object contains the list of the faces detected in an image.
+        //Faces object contains probabilities for all the different expressions, emotions and appearance metrics
+        detector.addEventListener("onImageResultsSuccess", function(faces, image, timestamp) {
+            $('#results').html("");
+            
+            console.log('#results', "Timestamp: " + timestamp.toFixed(2));
+            console.log('#results', "Number of faces found: " + faces.length);
+            
+            if (faces.length > 0) {
+                console.log('#results', "Appearance: " + JSON.stringify(faces[0].appearance));
+                console.log('#results', "Emotions: " + JSON.stringify(faces[0].emotions, function(key, val) {
+                    return val.toFixed ? Number(val.toFixed(0)) : val;
+                }));
+                console.log('#results', "Expressions: " + JSON.stringify(faces[0].expressions, function(key, val) {
+                    return val.toFixed ? Number(val.toFixed(0)) : val;
+                }));
+                console.log('#results', "Emoji: " + faces[0].emojis.dominantEmoji);
+                drawFeaturePoints(image, faces[0].featurePoints);
+            }
+        });    
+        
+        
+        
+        //Draw the detected facial feature points on the image
+        function drawFeaturePoints(img, featurePoints) {
+            var contxt = $('#face_video_canvas')[0].getContext('2d');
+
+            var hRatio = contxt.canvas.width / img.width;
+            var vRatio = contxt.canvas.height / img.height;
+            var ratio = Math.min(hRatio, vRatio);
+
+            contxt.strokeStyle = "#FFFFFF";
+            for (var id in featurePoints) {
+                contxt.beginPath();
+                contxt.arc(featurePoints[id].x,
+                featurePoints[id].y, 2, 0, 2 * Math.PI);
+                contxt.stroke();
+
+            }
+        }        
+        
+        
+        
+
+        
+        /* 
+          onImageResults success receives 3 parameters:
+          - image: An imageData object containing the pixel values for the processed frame.
+          - timestamp: An imageData object contain the pixel values for the processed frame.
+          - err_detail: A string contains the encountered exception.
+        */
+        detector.addEventListener("onImageResultsFailure", function (image, timestamp, err_detail) {});        
+        
+        
+        detector.addEventListener("onResetSuccess", function() {});
+        detector.addEventListener("onResetFailure", function() {});        
+        
+        detector.addEventListener("onStopSuccess", function() {});
+        detector.addEventListener("onStopFailure", function() {});
+        
+        
+        
+        detector.addEventListener("onWebcamConnectSuccess", function() {
+            console.log("I was able to connect to the camera successfully.");
+        });
+
+        detector.addEventListener("onWebcamConnectFailure", function() {
+            console.log("I've failed to connect to the camera :(");
+        });        
+        
+        // Track smiles
+        detector.detectExpressions.smile = true;
+
+        // Track joy emotion
+        detector.detectEmotions.joy = true;
+
+        // Detect person's gender
+        detector.detectAppearance.gender = true;        
+        
+        
+        detector.detectAllExpressions();
+        detector.detectAllEmotions();
+        detector.detectAllEmojis();
+        detector.detectAllAppearance();        
+        
+        detector.start();
+    
+    </script>
+    
+</body>
+</html>
