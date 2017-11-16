@@ -5,9 +5,12 @@ import time
 from threading import Event, Thread
 from threading import Timer
 
+from web.server import Application
+from logger import getLogger
+
 
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
-
+logger = getLogger('monitor')
 
 
 def monitor_open_windows():
@@ -107,7 +110,6 @@ class RepeatedTimer(object):
 
 def main():
     
-    
     monitor_open_windows()
     
     timer = RepeatedTimer(15, monitor_open_windows)
@@ -115,6 +117,11 @@ def main():
     # start timer
     timer.start()
 
+    
+    #server = Application()
+    
+    
+    
     # stop timer
     #timer.stop()    
 

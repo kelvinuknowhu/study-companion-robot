@@ -65,7 +65,7 @@ and open the template in the editor.
           - timestamp: The timestamp of the captured image in seconds.
         */
         //detector.addEventListener("onImageResultsSuccess", function (faces, image, timestamp) {});
-
+        
 
         
         //Add a callback to receive the results from processing an image.
@@ -110,8 +110,6 @@ and open the template in the editor.
             }
         }        
         
-        
-        
 
         
         /* 
@@ -154,7 +152,18 @@ and open the template in the editor.
         detector.detectAllEmojis();
         detector.detectAllAppearance();        
         
-        detector.start();
+        //detector.start();
+                
+        
+        var ws = new WebSocket("ws://localhost:8888/websocket");
+        
+        ws.onopen = function() {
+           //ws.send("Hello, world");
+        };
+        
+        
+        
+        
     
     </script>
     
