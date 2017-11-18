@@ -67,6 +67,7 @@ and open the template in the editor.
         //detector.addEventListener("onImageResultsSuccess", function (faces, image, timestamp) {});
         
 
+        var facialExpression = null;
         
         //Add a callback to receive the results from processing an image.
         //The faces object contains the list of the faces detected in an image.
@@ -74,19 +75,21 @@ and open the template in the editor.
         detector.addEventListener("onImageResultsSuccess", function(faces, image, timestamp) {
             $('#results').html("");
             
-            console.log('#results', "Timestamp: " + timestamp.toFixed(2));
-            console.log('#results', "Number of faces found: " + faces.length);
+            //console.log('#results', "Timestamp: " + timestamp.toFixed(2));
+            //console.log('#results', "Number of faces found: " + faces.length);
             
             if (faces.length > 0) {
-                console.log('#results', "Appearance: " + JSON.stringify(faces[0].appearance));
-                console.log('#results', "Emotions: " + JSON.stringify(faces[0].emotions, function(key, val) {
-                    return val.toFixed ? Number(val.toFixed(0)) : val;
-                }));
-                console.log('#results', "Expressions: " + JSON.stringify(faces[0].expressions, function(key, val) {
-                    return val.toFixed ? Number(val.toFixed(0)) : val;
-                }));
-                console.log('#results', "Emoji: " + faces[0].emojis.dominantEmoji);
-                drawFeaturePoints(image, faces[0].featurePoints);
+//                console.log('#results', "Appearance: " + JSON.stringify(faces[0].appearance));
+//                console.log('#results', "Emotions: " + JSON.stringify(faces[0].emotions, function(key, val) {
+//                    return val.toFixed ? Number(val.toFixed(0)) : val;
+//                }));
+//                console.log('#results', "Expressions: " + JSON.stringify(faces[0].expressions, function(key, val) {
+//                    return val.toFixed ? Number(val.toFixed(0)) : val;
+//                }));
+//                console.log('#results', "Emoji: " + faces[0].emojis.dominantEmoji);
+//                drawFeaturePoints(image, faces[0].featurePoints);
+                
+                facialExpression = faces[0].expressions;
             }
         });    
         
@@ -152,17 +155,21 @@ and open the template in the editor.
         detector.detectAllEmojis();
         detector.detectAllAppearance();        
         
-        //detector.start();
-                
+        detector.start();
         
-        var ws = new WebSocket("ws://localhost:8888/websocket");
+        var ws = new WebSocket("ws://localhost:8889/websocket");
         
         ws.onopen = function() {
-           //ws.send("Hello, world");
+           //ws.send("Web Socket Connection Made");
+            console.log('Web Socket Conenction Made');
         };
         
-        
-        
+        ws.onmessage = function (data) { 
+            if(data.data=='request_facial_expression'){                
+                console.log('Facial expression request received')
+                ws.send(JSON.stringify(facialExpression));         
+            } 
+        }
         
     
     </script>
