@@ -8,13 +8,15 @@ import json
 
 PATH = os.path.dirname(os.path.realpath(__file__))
 
+PORT = 8899
+
 WEBSOCKETS = set()
 
 
 class Application():
     
     def __init__(self):
-        self.port = 8889                
+        self.port = PORT                
         self.static_root = os.path.join(PATH)
         
         handlers = [(r'/', MainHandler),

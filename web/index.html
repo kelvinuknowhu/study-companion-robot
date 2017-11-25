@@ -21,7 +21,11 @@ and open the template in the editor.
     
     <div id="affdex_elements" style="width:680px;height:480px;"></div>
     
-    <script>        
+    <script>      
+        
+        var port = 8899;
+        
+        
         /*
            SDK Needs to create video and canvas nodes in the DOM in order to function
            Here we are adding those nodes a predefined div.
@@ -157,7 +161,7 @@ and open the template in the editor.
         
         detector.start();
         
-        var ws = new WebSocket("ws://localhost:8889/websocket");
+        var ws = new WebSocket("ws://localhost:" + port + "/websocket");
         
         ws.onopen = function() {
            //ws.send("Web Socket Connection Made");
