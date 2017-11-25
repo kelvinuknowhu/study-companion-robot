@@ -14,7 +14,16 @@ logger = getLogger('monitor')
 FACIAL_EXPRESSIONS = ['attention','browFurrow','browRaise','cheekRaise','chinRaise','dimpler','eyeClosure','eyeWiden','innerBrowRaise',
                       'jawDrop','lidTighten','lipCornerDepressor','lipPress','lipPucker','lipSuck','mouthOpen','noseWrinkle','smile','smirk','upperLipRaise']
 
-WEBSITES = ['facebook','youtube','instagram','twitter','reddit','buzzfeed','tumblr','pinterest','news','blog','board','game']
+EMOTIONS = ['joy','sadness','disgust','contempt','anger','fear','surprise','valence','engagement']
+
+WEBSITES = {'socialNetwork':['facebook','instagram','twitter','tumblr'],
+           'shopping':['amazon','craigslist','bestbuy'],
+           'entertainment':['youtube','reddit','buzzfeed','pinterest'],
+           'general':['news','blog','board','game','shopping'],
+           'work':['github','blackboard','qualtrics','surveymonkey','stack overflow']}
+
+
+useEmotion = False
 
 PORT = 8899
 
@@ -22,28 +31,32 @@ PORT = 8899
 class Monitor():
     
     def __init__(self, saveFile = None):
+        # Check if the saveFile exsits, if not, create a new file
         if saveFile is None:
             self.saveFile = os.path.join(DIR_PATH,"data","test.txt")
         else:
             self.saveFile = os.path.join(DIR_PATH,"data",saveFile)
+         
+        print("Created a new file at: {0}".format(self.saveFile))
+        open(self.saveFile, 'w').close()    
+#        try:
+#            with open(self.saveFile, 'rb') as _:
+#                pass
+#        except FileNotFoundError:
+#            print("Created new file at: {0}".format(self.saveFile))
+#            # Create new file
+#            open(self.saveFile, 'w').close()                
+#        if useEmotion:
+#            FACIAL_EXPRESSIONS = EMOTIONS
+
             
-        try:
-            with open(self.saveFile, 'rb') as _:
-                pass
-        except FileNotFoundError:
-            print("Created new file at: {0}".format(self.saveFile))
-            # Create new file
-            open(self.saveFile, 'w').close()                
-            
+        # Write the header    
         header = []
         for key in FACIAL_EXPRESSIONS:
             header.append(key)
-            
         for key in WEBSITES:
             header.append("active_{0}".format(key))
-            
         header.append("active_other")
-        
         for key in WEBSITES:
             header.append("open_{0}".format(key))
             
@@ -80,6 +93,7 @@ class Monitor():
                 allZero = False
 
         if allZero:
+            print("Facial expression not found")
             for key in FACIAL_EXPRESSIONS:
                 facial_expression[key] = self.last_facial_expression_stored[key]                    
         else:
@@ -92,29 +106,39 @@ class Monitor():
 
                 
         if active_window:
-            foundMatch = False
-            for key in WEBSITES:
-                if key in active_window.lower():
+            categoryFound = False
+            for category in WEBSITES:
+                
+                titleMatchFound = False
+                for key in WEBSITES[category]:
+                    if key in active_window.lower():
+                        titleMatchFound = True
+                        categoryFound = True
+                        break
+                
+                if titleMatchFound: # Set 1 if a page is found to be in the current category
                     data.append(1)
-                    foundMatch = True
                 else:
                     data.append(0)
                     
-            if foundMatch:
+            if categoryFound: # Category "others"
                 data.append(0)
             else:
                 data.append(1)
+                    
         else:
-            for key in WEBSITES:
+            for category in WEBSITES:
                 data.append(0)
             data.append(0)
             
         if open_windows:
-            for key in WEBSITES:
+            for category in WEBSITES:
                 counter = 0
                 for window in open_windows:
-                    if key in window.lower():
-                        counter += 1
+                    title = window.lower()
+                    for key in WEBSITES[category]:
+                        if key in title:
+                            counter += 1
                 data.append(counter)
         else:
             for key in WEBSITES:
@@ -136,7 +160,7 @@ class Monitor():
 
         try:
             waitForFileGeneration(data_file)        
-            facialExpressions = {}            
+            facial_expressions = {}            
             
             with open(data_file, 'r') as f: 
 
@@ -146,17 +170,17 @@ class Monitor():
                     else:
                         lineSplit = line.split(":")
                         number = float(lineSplit[1].strip())
-                        facialExpressions[lineSplit[0]]=number
+                        facial_expressions[lineSplit[0]]=number
             os.remove(data_file)
-            return facialExpressions
+            return facial_expressions
 
         except OSError as e:
             print('Facial expression not recognized')
             print(str(e))
-            facialExpressions = {}
+            facial_expressions = {}
             for exp in FACIAL_EXPRESSIONS:
-                facialExpressions[exp] = 0            
-            return facialExpressions            
+                facial_expressions[exp] = 0            
+            return facial_expressions            
                         
     def write_open_windows(self):
         script_path = os.path.join(DIR_PATH,"applescript","windows_monitor.scpt")

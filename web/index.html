@@ -25,6 +25,7 @@ and open the template in the editor.
         
         var port = 8899;
         
+        var useEmotion = false;
         
         /*
            SDK Needs to create video and canvas nodes in the DOM in order to function
@@ -71,7 +72,7 @@ and open the template in the editor.
         //detector.addEventListener("onImageResultsSuccess", function (faces, image, timestamp) {});
         
 
-        var facialExpression = null;
+        var affectivaData = null;
         
         //Add a callback to receive the results from processing an image.
         //The faces object contains the list of the faces detected in an image.
@@ -84,16 +85,20 @@ and open the template in the editor.
             
             if (faces.length > 0) {
 //                console.log('#results', "Appearance: " + JSON.stringify(faces[0].appearance));
-//                console.log('#results', "Emotions: " + JSON.stringify(faces[0].emotions, function(key, val) {
-//                    return val.toFixed ? Number(val.toFixed(0)) : val;
-//                }));
+                console.log('#results', "Emotions: " + JSON.stringify(faces[0].emotions, function(key, val) {
+                    return val.toFixed ? Number(val.toFixed(0)) : val;
+                }));
 //                console.log('#results', "Expressions: " + JSON.stringify(faces[0].expressions, function(key, val) {
 //                    return val.toFixed ? Number(val.toFixed(0)) : val;
 //                }));
 //                console.log('#results', "Emoji: " + faces[0].emojis.dominantEmoji);
 //                drawFeaturePoints(image, faces[0].featurePoints);
                 
-                facialExpression = faces[0].expressions;
+                if(useEmotion){
+                    affectivaData = faces[0].emotions;
+                }else{
+                    affectivaData = faces[0].expressions;
+                }
             }
         });    
         
@@ -171,7 +176,7 @@ and open the template in the editor.
         ws.onmessage = function (data) { 
             if(data.data=='request_facial_expression'){                
                 console.log('Facial expression request received')
-                ws.send(JSON.stringify(facialExpression));         
+                ws.send(JSON.stringify(affectivaData));         
             } 
         }
         
