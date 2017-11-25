@@ -12,19 +12,71 @@ DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 logger = getLogger('monitor')
 
 
+#FACIAL_EXPRESSION_SCREEN="facial_expression_server_screen"
+#KEYLOGGER_SCREEN="key_logger_screen"
+
+#def kill_screens():
+#    try:
+#        subprocess.check_output("killall SCREEN", shell=True)
+#    except subprocess.CalledProcessError as e:
+#        print(e.output)    
+#    
+#def run_command_on_screen(command):
+#    subprocess.run("screen -dm {0}".format(command), shell=True, check=True)
+#    
+#def open_new_screen(name,command=None):
+#    try:
+#        #subprocess.check_output("killall SCREEN", shell=True)
+#        subprocess.run("screen -S {0}".format(name), shell=True, check=True)
+#        
+#    except subprocess.CalledProcessError as e:
+#        print(e.output)            
+    
+#    subprocess.run("screen -S {0}".format(name), shell=True, check=True)
+#    if command is not None:
+#        run_command_on_screen(command)
+
+    
 class Monitor():
     
     def __init__(self):
         pass
+#        kill_screens()
+    
+    def run(self):
+        # Assumes that the keylogger, the web server is running
+        timer = RepeatedTimer(20, logData)
+        # start timer
+        timer.start()
+        
+    def logData(self):
+        
+        request_facial_expression()
+        read_facial_expression()
+        
+        write_open_windows()
+        read_open_windows()
+        
+        
+#    def run_keylogger_process(self):
+#        open_new_screen(KEYLOGGER_SCREEN)
+#        run_command_on_screen("keylogger")
+#        
+#    def run_facial_expression_monitor_server(self):
+#        open_new_screen(FACIAL_EXPRESSION_SCREEN)
+#        server_file_path = os.path.join(DIR_PATH,"web","server.py")
+#        run_command_on_screen("python {0}".format(server_file_path))
     
     def request_facial_expression(self):
         requests.post('http://localhost:8889/get-facial-expression', data = {'key':'value'})
         
     def read_facial_expression(self):
         data_file = os.path.join(DIR_PATH,"web","facial_expressions.txt")        
-        waitForFileGeneration(data_file)        
-        facialExpressions = {}
+
         try:
+            waitForFileGeneration(data_file)        
+            facialExpressions = {}            
+            
             with open(data_file, 'r') as f: 
 
                 for i, line in enumerate(f):
@@ -35,12 +87,10 @@ class Monitor():
                         facialExpressions[lineSplit[0]]=lineSplit[1]
             os.remove(data_file)
 
-        except Error as e:
-            print('Exe in reading the facial expression file')
+        except OSError as e:
+            print('Facial expression not recognized yet')
             print(str(e))
-            
-        print(facialExpressions)
-            
+                        
     def write_open_windows(self):
         script_path = os.path.join(DIR_PATH,"applescript","windows_monitor.scpt")
         subprocess.check_call("osascript {0}".format(script_path),shell=True)    
@@ -120,8 +170,7 @@ class RepeatedTimer(object):
     def stop(self):
         self._timer.cancel()
         self.is_running = False
-
-
+        
         
 
 def main():
