@@ -2,6 +2,8 @@
 
 typedef struct {
     time_t startTime;
+    char *word;
+    char *words;
     unsigned long wordCount;
 } UserInfo;
 
@@ -13,6 +15,8 @@ int main(int argc, const char *argv[]) {
     UserInfo userInfo;
     userInfo.startTime = time(NULL);
     userInfo.wordCount = 0;
+    userInfo.word = "";
+    userInfo.words = "";
     
 
     // Create an event tap to retrieve keypresses.
@@ -80,25 +84,27 @@ CGEventRef CGEventCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef e
         CGKeyCode keyCode = (CGKeyCode) CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
 
         // Calculate WPM
-        if (strcmp(convertKeyCode(keyCode), " ") == 0) {
+        if (keyCode == 49) {
+            // When the user hits a space
             data->wordCount++;
+            strcat(data->words, " ");
+            strcat(data->words, data->word);
+            data->word = "";
+        } else if (keyCode >= 0 && keyCode <= 17 || keyCode == 31 || keyCode == 32 || keyCode == 34 || keyCode == 35 || keyCode == 37 || keyCode == 38 || keyCode == 40 || keyCode == 45 || keyCode == 46) {
+            // When the user hits an alphabetic letter
+            strcat(data->word, convertKeyCode(keyCode));
         }
     }
 
     if (elapsedTime >= 60) {
-        double wordPerMinute = 60 * ((double) data->wordCount / (double) elapsedTime);
-        if (wordPerMinute < WPM_THRESHOULD) {
-            fprintf(logfile, "STATUS: DISTRACTED\n");
-        } else {
-            fprintf(logfile, "STATUS: NOT DISTRACTED\n");
-        }
-        fprintf(logfile, "Word Count: %lu\n", data->wordCount);
+        // check if this is doable
+        fprintf(logfile, "Words: %s\n", data->words);
         fprintf(logfile, "Elapsed Time: %ld\n", elapsedTime);
-        fprintf(logfile, "WPM: %.2f\n", wordPerMinute);
         fprintf(logfile, "--------------------\n");
         fflush(logfile);
         data->startTime = time(NULL);
         data->wordCount = 0;
+        data->words = "";
     }
 
     return event;

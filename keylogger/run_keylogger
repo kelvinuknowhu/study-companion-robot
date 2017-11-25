@@ -1,0 +1,3 @@
+sudo keylogger clear
+make && make install
+sudo keylogger

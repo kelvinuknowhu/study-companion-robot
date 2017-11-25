@@ -16,7 +16,7 @@ $ make && make install
 The application by default logs to `/var/log/keystroke.log`, which may require root access depending on your system's permissions. You can change this in [`keylogger.h`](https://github.com/caseyscarborough/keylogger/blob/master/keylogger.h#L12) if necessary.
 
 ```bash
-$ keylogger
+$ sudo keylogger
 Logging to: /var/log/keystroke.log
 ```
 
