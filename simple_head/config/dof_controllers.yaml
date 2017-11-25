@@ -1,0 +1,62 @@
+neck_pan_controller:
+    controller:
+        package: dynamixel_controllers
+        module: joint_position_controller
+        type: JointPositionController
+    joint_name: neck_pan
+    joint_speed: 0.5
+    motor:
+        id: 0
+        init: 2048
+        min: 0
+        max: 4096
+
+neck_tilt_controller:
+    controller:
+        package: dynamixel_controllers
+        module: joint_position_controller
+        type: JointPositionController
+    joint_name: neck_tilt
+    joint_speed: 0.5
+    motor:
+        id: 1
+        init: 2048
+        min: 0
+        max: 4096
+        
+head_tilt_controller:
+    controller:
+        package: dynamixel_controllers
+        module: joint_position_controller
+        type: JointPositionController
+    joint_name: head_tilt
+    joint_speed: 0.5
+    motor:
+        id: 2
+        init: 2048
+        min: 0
+        max: 4096
+        
+head_roll_controller:
+    controller:
+        package: dynamixel_controllers
+        module: joint_position_controller
+        type: JointPositionController
+    joint_name: head_roll
+    joint_speed: 0.5
+    motor:
+        id: 3
+        init: 2048
+        min: 0
+        max: 4096
+
+# This is the meta controller configuration
+head_controller:
+    controller:
+        package: dynamixel_controllers
+        module: joint_trajectory_action_controller
+        type: JointTrajectoryActionController
+    joint_trajectory_action_node:
+        min_velocity: 0.05
+        constraints:
+            goal_time: 0.25
