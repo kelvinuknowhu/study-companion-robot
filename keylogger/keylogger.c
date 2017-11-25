@@ -2,6 +2,8 @@
 
 typedef struct {
     time_t startTime;
+    char word[1024];
+    char words[4096];
     unsigned long wordCount;
 } UserInfo;
 
@@ -13,7 +15,13 @@ int main(int argc, const char *argv[]) {
     UserInfo userInfo;
     userInfo.startTime = time(NULL);
     userInfo.wordCount = 0;
+    userInfo.word[0] = '\0';
+    userInfo.words[0] = '\0';
     
+    memset(logfileLocation, '\0', sizeof(logfileLocation));
+    getcwd(logfileLocation, sizeof(logfileLocation));
+    strcat(logfileLocation, "/data.log");
+
 
     // Create an event tap to retrieve keypresses.
     CGEventMask eventMask = CGEventMaskBit(kCGEventKeyDown) | CGEventMaskBit(kCGEventFlagsChanged) | CGEventMaskBit(kCGEventMouseMoved);
@@ -38,8 +46,6 @@ int main(int argc, const char *argv[]) {
             printf("%s cleared.\n", logfileLocation);
             fflush(stdout);
             exit(1);
-        } else {
-            logfileLocation = argv[1];
         }
     }
                                                      
@@ -77,37 +83,41 @@ CGEventRef CGEventCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef e
     
     if (type == kCGEventKeyDown || type == kCGEventFlagsChanged) {
         // Retrieve the incoming keycode.
-        CGKeyCode keyCode = (CGKeyCode) CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
-
-        // Calculate WPM
-        if (strcmp(convertKeyCode(keyCode), " ") == 0) {
+        CGKeyCode keyCodeTemp = (CGKeyCode) CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
+        int keyCode = (int) keyCodeTemp;
+        // Record the words typed 
+        if (keyCode == 49 || keyCode == 36) {
+            // When the user hits space or return
             data->wordCount++;
+            if (data->word[0] != '\0') {
+                strcat(data->words, data->word);
+                strcat(data->words, " ");
+                memset(data->word, '\0', sizeof(data->word));
+            }
+        } else if ((keyCode >= 0 && keyCode <= 17) || keyCode == 31 || keyCode == 32 || keyCode == 34 || keyCode == 35 || keyCode == 37 || keyCode == 38 || keyCode == 40 || keyCode == 45 || keyCode == 46) {
+            // When the user hits an alphabetic letter
+            strcat(data->word, convertKeyCode(keyCode));
         }
     }
 
     if (elapsedTime >= 60) {
-        double wordPerMinute = 60 * ((double) data->wordCount / (double) elapsedTime);
-        if (wordPerMinute < WPM_THRESHOULD) {
-            fprintf(logfile, "STATUS: DISTRACTED\n");
-        } else {
-            fprintf(logfile, "STATUS: NOT DISTRACTED\n");
-        }
-        fprintf(logfile, "Word Count: %lu\n", data->wordCount);
+        // check if this is doable
+        fprintf(logfile, "Words: %s\n", data->words);
         fprintf(logfile, "Elapsed Time: %ld\n", elapsedTime);
-        fprintf(logfile, "WPM: %.2f\n", wordPerMinute);
         fprintf(logfile, "--------------------\n");
         fflush(logfile);
         data->startTime = time(NULL);
         data->wordCount = 0;
+        memset(data->words, '\0', sizeof(data->words));
     }
 
     return event;
 }
 
 // The following method converts the key code returned by each keypress as
-// a human readable key code in const char format.
+// a human readable key code in const char * format.
 const char *convertKeyCode(int keyCode) {
-    switch ((int) keyCode) {
+    switch (keyCode) {
         case 0:   return "a";
         case 1:   return "s";
         case 2:   return "d";
