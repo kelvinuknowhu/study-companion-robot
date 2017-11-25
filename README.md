@@ -10,11 +10,11 @@ The idea of a study companion robot stems from the question above. How is it lik
 
 ### Keylogger
 
-Change the path in [`keylogger.h`](https://github.com/kelvinhu9988/study-companion-robot/blob/master/keylogger/keylogger.h#L12) to match the current project directory.
+Change the path in [`keylogger/keylogger.h`](https://github.com/kelvinhu9988/study-companion-robot/blob/master/keylogger/keylogger.h#L12) to match the current project directory.
 
 ### Applescript
 
-Open [`windows_monitor.scpt`](https://github.com/kelvinhu9988/study-companion-robot/blob/master/applescript/windows_monitor.scpt#L12) using Mac OS X's Script Editor, and modify the file path to match the current project directory.
+Open [`applescript/windows_monitor.scpt`](https://github.com/kelvinhu9988/study-companion-robot/blob/master/applescript/windows_monitor.scpt#L12) using Mac OS X's Script Editor, and modify the file path to match the current project directory.
 
 
 ### Web Server
@@ -26,5 +26,5 @@ $ python /projectPath/web/server.py
 
 ### Facial Expression Monitor
 
-After running the server, open a browser (preferably the latest version of Chrome) and go `http://localhost:8899/index.html` to start monitoring the facial expression. Change `8899` to the correct port number you set in the previous step.
+After running the server, open a browser (preferably the latest version of Chrome) and open the following URL: `http://localhost:8899/index.html` to start monitoring the facial expression. Change `8899` to the correct port number you set in the previous step.
 
