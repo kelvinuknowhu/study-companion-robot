@@ -10,7 +10,11 @@ The idea of a study companion robot stems from the question above. How is it lik
 
 ### Keylogger
 
-Change the path in [`keylogger/keylogger.h`](https://github.com/kelvinhu9988/study-companion-robot/blob/master/keylogger/keylogger.h#L12) to match the current project directory.
+`cd` to the project directory and launch the keylogger:
+
+```bash
+$ keylogger
+```
 
 ### Applescript
 

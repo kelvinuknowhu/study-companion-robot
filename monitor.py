@@ -20,7 +20,7 @@ WEBSITES = {'socialNetwork':['facebook','instagram','twitter','tumblr'],
            'shopping':['amazon','craigslist','bestbuy'],
            'entertainment':['youtube','reddit','buzzfeed','pinterest'],
            'general':['news','blog','board','game','shopping'],
-           'work':['github','blackboard','qualtrics','surveymonkey','stack overflow']}
+           'work':['github','overleaf','blackboard','qualtrics','surveymonkey','stack overflow']}
 
 
 useEmotion = False
@@ -39,19 +39,13 @@ class Monitor():
          
         print("Created a new file at: {0}".format(self.saveFile))
         open(self.saveFile, 'w').close()    
-#        try:
-#            with open(self.saveFile, 'rb') as _:
-#                pass
-#        except FileNotFoundError:
-#            print("Created new file at: {0}".format(self.saveFile))
-#            # Create new file
-#            open(self.saveFile, 'w').close()                
-#        if useEmotion:
-#            FACIAL_EXPRESSIONS = EMOTIONS
-
             
         # Write the header    
         header = []
+        
+        header.append("label")
+        header.append("wordsPerMinute")
+        
         for key in FACIAL_EXPRESSIONS:
             header.append(key)
         for key in WEBSITES:
@@ -70,15 +64,35 @@ class Monitor():
             self.last_facial_expression_stored[key] = 0   
 
                 
-    def run(self):
+    def run(self, state = 'working'):
+        
         # Assumes that the keylogger, the web server is running
-        timer = RepeatedTimer(5, self.logData)
+        timer = RepeatedTimer(5, self.logData, state)
         # start timer
         timer.start()
         
-    def logData(self):
+        var = input("Please enter 'w' for working state, and 'd' for distracted state. Enter 'x' to stop recording data")
+        
+        if var == "w":
+            timer.stop()
+            self.run('working')
+        
+        elif var == "d":
+            timer.stop()            
+            self.run('distracted')
+        
+        else:
+            timer.stop()
+        
+        
+    def logData(self, state):
         data = []
         ind = 0
+        
+        if state=="working":
+            data.append(1)
+        else: # distracted
+            data.append(0)
         
         self.request_facial_expression()
         facial_expression = self.read_facial_expression()
@@ -86,6 +100,8 @@ class Monitor():
         self.write_open_windows()
         active_window, open_windows = self.read_open_windows()
         
+        words_typed_per_minute = self.read_keylogger_data()
+        data.append(words_typed_per_minute)
             
         allZero = True
         for key in facial_expression:
@@ -99,7 +115,6 @@ class Monitor():
         else:
             for key in FACIAL_EXPRESSIONS:
                 self.last_facial_expression_stored[key] = facial_expression[key]        
-                
                 
         for key in FACIAL_EXPRESSIONS:
             data.append(facial_expression[key])
@@ -150,6 +165,41 @@ class Monitor():
             f.write('\n')
             print("Logged data with {0} features".format(len(data)))
             print(",".join(out))
+            
+        
+            
+    def read_keylogger_data(self):
+        keyloggerData = os.path.join(DIR_PATH,"data.log")
+        
+        numWords = []
+        elapsed_time = []
+        
+        try:
+            with open(keyloggerData, 'r') as f: 
+                counter = 0
+                for line in f:
+                    if line.isspace():
+                        pass
+                    elif "--------------------" in line:
+                        pass
+                    elif "Words: " in line:
+                        words = line.split()
+                        numWords.append(len(words))
+                    elif "Elapsed Time: " in line:
+                        split = line.split()
+                        time = int(split[2])
+                        elapsed_time.append(time)
+                    else:
+                        pass
+                        #print("Unrecognized line: {0}".format(line))
+                        
+            # Get the last line
+            words_per_minute = numWords[-1] / elapsed_time[-1] * 60
+            return words_per_minute
+            
+        except IOError as e:
+            print(str(e))
+            return 0
 
     
     def request_facial_expression(self):
