@@ -66,7 +66,10 @@ def main():
     
     hidden_states = model.predict(data)
     
-    
+    result = "Distracted"
+    # Socket connection to the robot manipulation script
+
+
     print("Done")
     
     print("Transition matrix")

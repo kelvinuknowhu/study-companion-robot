@@ -169,7 +169,7 @@ class Monitor():
         
             
     def read_keylogger_data(self):
-        keyloggerData = os.path.join(DIR_PATH,"data.log")
+        keyloggerData = os.path.join(DIR_PATH, "data.log")
         
         numWords = []
         elapsed_time = []
@@ -191,7 +191,6 @@ class Monitor():
                         elapsed_time.append(time)
                     else:
                         pass
-                        #print("Unrecognized line: {0}".format(line))
                         
             # Get the last line
             words_per_minute = numWords[-1] / elapsed_time[-1] * 60
@@ -206,7 +205,7 @@ class Monitor():
         requests.post('http://localhost:{0}/get-facial-expression'.format(PORT), data = {'key':'value'})
         
     def read_facial_expression(self):
-        data_file = os.path.join(DIR_PATH,"web","facial_expressions.txt")        
+        data_file = os.path.join(DIR_PATH, "web", "facial_expressions.txt")        
 
         try:
             waitForFileGeneration(data_file)        
@@ -220,7 +219,8 @@ class Monitor():
                     else:
                         lineSplit = line.split(":")
                         number = float(lineSplit[1].strip())
-                        facial_expressions[lineSplit[0]]=number
+                        facial_expressions[lineSplit[0]] = number
+                print("debug: " + str(facial_expressions))
             os.remove(data_file)
             return facial_expressions
 
@@ -261,11 +261,11 @@ class Monitor():
                                 active_tab_URL = line
                             else:
                                 active_tab_title = line
-                        elif inputType==1: # All chrome tab URLs
+                        elif inputType == 1: # All chrome tab URLs
                             open_tab_URL.append(line)
-                        elif inputType==2: # All chrome tab titles
+                        elif inputType == 2: # All chrome tab titles
                             open_tab_title.append(line)
-                        elif inputType==3: # All applications open
+                        elif inputType == 3: # All applications open
                             lineSplit = line.split(",")
                             open_applications = lineSplit
             os.remove(data_file)
@@ -273,7 +273,7 @@ class Monitor():
             return active_tab_title, open_tab_title
 
         except Error as e:
-            print('Exe in reading the window monitor file')
+            print('Error in reading the window monitor file')
             print(str(e))
             
             return None, None
