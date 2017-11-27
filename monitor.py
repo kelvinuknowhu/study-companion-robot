@@ -332,4 +332,6 @@ def main():
 
 
 if __name__=='__main__':
-    main()
+    monitor = Monitor()
+    monitor.run()
+    
