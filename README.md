@@ -13,7 +13,7 @@ The idea of a study companion robot stems from the question above. How is it lik
 `cd` to the project directory and launch the keylogger:
 
 ```bash
-$ keylogger
+$ sudo keylogger
 ```
 
 ### Applescript
@@ -25,7 +25,7 @@ Open [`applescript/windows_monitor.scpt`](https://github.com/kelvinhu9988/study-
 Modify the port number in [`web/server.py`](https://github.com/kelvinhu9988/study-companion-robot/blob/master/web/server.py#L12), [`web/index.html`](https://github.com/kelvinhu9988/study-companion-robot/blob/master/web/index.html#L12), and [`monitor.py`](https://github.com/kelvinhu9988/study-companion-robot/blob/master/monitor.py#L12) to the desired port number that you want to use. Then run the server using the following script:
 
 ```bash
-$ python /projectPath/web/server.py
+$ sudo python /projectPath/web/server.py
 ```
 
 ### Facial Expression Monitor

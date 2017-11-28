@@ -11,7 +11,7 @@ def getLogger(name):
     logger.setLevel(logging.DEBUG)
 
     # create console handler and set level to debug
-    filehandler = logging.FileHandler(os.path.join(PATH,name+".log"))
+    filehandler = logging.FileHandler(os.path.join(PATH, name + ".log"))
     filehandler.setLevel(logging.DEBUG)
 
     # create formatter
