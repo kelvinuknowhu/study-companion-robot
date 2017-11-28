@@ -5,4 +5,6 @@ __pycache__/*
 *.ipynb
 ipynb_checkpoints/*
 keylogger/*~
-
+simple_head/*~
+simple_head/launch/*~
+simple_head/config/*~
