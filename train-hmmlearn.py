@@ -56,13 +56,13 @@ def getData(inputFile):
 
 def main():
     
-    data, label = getData('first_trial_browsing_web_5sec.txt')
+    data, label = getData('20171128-1238.csv')
     print(str((np.shape(data))))    
 
 #    X = np.concatenate(data)
 #    lengths = [len(x) for x in data]
     
-    model = hmm.GaussianHMM(n_components=2, covariance_type="diag", n_iter=1000).fit(data)  
+    model = hmm.GaussianHMM(n_components=1, covariance_type="diag", n_iter=1000).fit(data)  
     
     hidden_states = model.predict(data)
     

@@ -3,6 +3,7 @@ from seqlearn import hmm
 
 import numpy as np
 import os
+import pickle
 
 from logger import getLogger
 
@@ -50,17 +51,35 @@ def getData(inputFile):
     
 def main():
     
-    data, label = getData('first_trial_browsing_web_5sec.txt')
+    try:
     
-    print(str(np.shape(data)))
+        data, label = getData('20171128-1238.csv')
+
+        print(str(np.shape(data)))
+
+        model = hmm.MultinomialHMM(decode='viterbi', alpha=0.01)
+
+        lengths = [len(label)]    
+
+        model.fit(data, label, lengths)
+        
+        modelFile = os.path.join(DIR_PATH,'seqlearnModel.pkl')
+                
+        with open(modelFile, 'wb') as handle:
+            pickle.dump(model, handle, protocol=pickle.HIGHEST_PROTOCOL)
+#
+#        with open('filename.pickle', 'rb') as handle:
+#            b = pickle.load(handle)
+#
+#        print a == b        
+#        
+        
+        
+        hidden_states = model.predict(data)
     
-    model = hmm.MultinomialHMM(decode='viterbi', alpha=0.01)
+    except ValueError as e:
+        print(str(e))
     
-    lengths = [len(label)]    
-    
-    model.fit(data, label, lengths)
-    
-    hidden_states = model.predict(data)
     
     print(str(hidden_states))
     print("Done")

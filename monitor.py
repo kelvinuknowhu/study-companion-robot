@@ -105,7 +105,7 @@ class Monitor():
             
         allZero = True
         for key in facial_expression:
-            if not facial_expression[key] == 0:
+            if facial_expression[key] != 0:
                 allZero = False
 
         if allZero:
