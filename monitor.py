@@ -1,15 +1,18 @@
+import argparse
 import subprocess
 import os
 import time
+import requests
 from threading import Event, Thread
 from threading import Timer
-import requests
 
-from logger import getLogger
+import predict
+
+#from logger import getLogger
 
 
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
-logger = getLogger('monitor')
+#logger = getLogger('monitor')
 
 FACIAL_EXPRESSIONS = ['attention','browFurrow','browRaise','cheekRaise','chinRaise','dimpler','eyeClosure','eyeWiden','innerBrowRaise',
                       'jawDrop','lidTighten','lipCornerDepressor','lipPress','lipPucker','lipSuck','mouthOpen','noseWrinkle','smile','smirk','upperLipRaise']
@@ -30,62 +33,74 @@ PORT = 8899
     
 class Monitor():
     
-    def __init__(self, saveFile = None):
-        # Check if the saveFile exsits, if not, create a new file
-        if saveFile is None:
-            self.saveFile = os.path.join(DIR_PATH,"data","test.txt")
+    def __init__(self, sendMsg = False, saveFile = None):
+        
+        self.sendMsg = sendMsg
+        self.predictor = None
+        self.model = None
+        
+        if sendMsg:
+            pass
         else:
-            self.saveFile = os.path.join(DIR_PATH,"data",saveFile)
-         
-        print("Created a new file at: {0}".format(self.saveFile))
-        open(self.saveFile, 'w').close()    
+            # Check if the saveFile exsits, if not, create a new file
+            if saveFile is None:
+                self.saveFile = os.path.join(DIR_PATH,"data","test.txt")
+            else:
+                self.saveFile = os.path.join(DIR_PATH,"data",saveFile)
+
+            print("Created a new file at: {0}".format(self.saveFile))
+            open(self.saveFile, 'w').close()    
             
-        # Write the header    
-        header = []
-        
-        header.append("label")
-        header.append("wordsPerMinute")
-        
-        for key in FACIAL_EXPRESSIONS:
-            header.append(key)
-        for key in WEBSITES:
-            header.append("active_{0}".format(key))
-        header.append("active_other")
-        for key in WEBSITES:
-            header.append("open_{0}".format(key))
-            
-        with open(self.saveFile, 'w') as f:
-            out = [str(x) for x in header]
-            f.write(",".join(out))
-            f.write('\n')  
+            # Write the header    
+            header = []
+            header.append("label")
+            header.append("wordsPerMinute")
+
+            for key in FACIAL_EXPRESSIONS:
+                header.append(key)
+            for key in WEBSITES:
+                header.append("active_{0}".format(key))
+            header.append("active_other")
+            for key in WEBSITES:
+                header.append("open_{0}".format(key))
+
+            with open(self.saveFile, 'w') as f:
+                out = [str(x) for x in header]
+                f.write(",".join(out))
+                f.write('\n')  
         
         self.last_facial_expression_stored = {}
         for key in FACIAL_EXPRESSIONS:
             self.last_facial_expression_stored[key] = 0   
 
                 
+                
     def run(self, state = 'working'):
-        
+                
         # Assumes that the keylogger, the web server is running
         timer = RepeatedTimer(5, self.logData, state)
         # start timer
         timer.start()
         
-        var = input("Please enter 'w' for working state, and 'd' for distracted state. Enter 'x' to stop recording data")
-        
-        if var == "w":
-            timer.stop()
-            self.run('working')
-        
-        elif var == "d":
-            timer.stop()            
-            self.run('distracted')
-        
+        if self.sendMsg:
+            pass
         else:
-            timer.stop()
+            var = input("Please enter 'w' for working state, and 'd' for distracted state. Enter 'x' to stop recording data")
+
+            if var == "w":
+                timer.stop()
+                self.run('working')
+
+            elif var == "d":
+                timer.stop()            
+                self.run('distracted')
+
+            else:
+                timer.stop()
         
         
     def logData(self, state):
+        
         data = []
         ind = 0
         
@@ -158,15 +173,32 @@ class Monitor():
         else:
             for key in WEBSITES:
                 data.append(0)
-
-        with open(self.saveFile,'a') as f:
-            out = [str(x) for x in data]
-            f.write(",".join(out))
-            f.write('\n')
-            print("Logged data with {0} features".format(len(data)))
-            print(",".join(out))
+                
+        
+        if self.sendMsg: # Send data to the robot
+            if self.model is None:
+                raise ValueError("Model not set up")
+            else:
+                # Remove the label
+                data = data[1:]
+                # Make prediction
+                prediction = self.model.predict(data)
+                print("prediction: " + str(prediction))
+                # Send message to the robot
+                self.model.send_message(state=str(prediction[0]))
+            
+        else: # Log data in a file
+            with open(self.saveFile,'a') as f:
+                out = [str(x) for x in data]
+                f.write(",".join(out))
+                f.write('\n')
+                print("Logged data with {0} features".format(len(data)))
+                print(",".join(out))
             
         
+        
+    def setModel(self, modelFilePath):
+        self.model = predict.Predictor(modelFilePath)
             
     def read_keylogger_data(self):
         keyloggerData = os.path.join(DIR_PATH, "data.log")
@@ -193,7 +225,11 @@ class Monitor():
                         pass
                         
             # Get the last line
-            words_per_minute = numWords[-1] / elapsed_time[-1] * 60
+            try:
+                words_per_minute = numWords[-1] / elapsed_time[-1] * 60
+            except IndexError as e:
+                words_per_minute = 0
+                
             return words_per_minute
             
         except IOError as e:
@@ -220,7 +256,6 @@ class Monitor():
                         lineSplit = line.split(":")
                         number = float(lineSplit[1].strip())
                         facial_expressions[lineSplit[0]] = number
-                print("debug: " + str(facial_expressions))
             os.remove(data_file)
             return facial_expressions
 
@@ -316,22 +351,36 @@ class RepeatedTimer(object):
         self._timer.cancel()
         self.is_running = False
         
-        
-
-def main():
-    pass
-#    monitor = Monitor(server)
-#
-#    timer = RepeatedTimer(30, monitor_open_windows)
-#    
-#    # start timer
-#    timer.start()
-#
-#    # stop timer
-#    timer.stop()        
 
 
 if __name__=='__main__':
-    monitor = Monitor()
-    monitor.run()
+    
+    parser = argparse.ArgumentParser(description='Run scripts to monitor user behavior')
+        
+    parser.add_argument('--sendMsg', action='store_true',
+                        help='Send message to the robot through socket. (Does not create data file)')    
+    
+    parser.add_argument('--model', type=str, default=None, help='Name of the pickled model file')    
+    
+    
+    args = parser.parse_args()
+    option = None
+    model = None
+    
+    if args.sendMsg:
+        if args.model is None:
+            raise ValueError("Model path not given")
+        else:
+            model = args.model
+            
+        option = "sendMsg"  
+            
+    monitor = Monitor(option)
+    
+    if model is not None:
+        monitor.setModel(model)
+    
+    monitor.run()  
+    
+    
     
