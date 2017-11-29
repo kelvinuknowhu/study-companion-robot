@@ -19,7 +19,7 @@ You can add poses in the `poses.yaml` config file. After you add a new pose, you
 You request a pose by sending a `simple_head/PoseCommand` message to the `/goto_pose` topic. The message has two fields: a ROS duration (the time it should take to go to the pose) and a string for the pose.
 
 For example, this will request pose `up_left` with a movement duration of three seconds:
-```rostopic pub -1 /goto_pose simple_head/PoseCommand -- '[3.0,0.0]' 'up_left'```
+```rostopic pub --once /goto_pose simple_head/PoseCommand -- '[3.0,0.0]' 'up_left'```
 
 
 ### Common issues
