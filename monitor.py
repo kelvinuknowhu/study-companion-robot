@@ -195,7 +195,7 @@ class Monitor():
                 
                 self.predictionData.append(data)
                 
-                if len(self.predictionData) == 4:
+                if len(self.predictionData) == 10:
                     del self.predictionData[0]
                     
                 prediction = self.model.predict(self.predictionData)
