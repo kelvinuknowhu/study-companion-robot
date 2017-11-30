@@ -6,6 +6,8 @@ import requests
 from threading import Event, Thread
 from threading import Timer
 
+import threading
+import _thread
 import socket
 
 import predict
@@ -40,13 +42,15 @@ class Monitor():
         self.sendMsg = sendMsg
         self.predictor = None
         self.model = None
-        
+        self.socketOpen = False
         self.c = None
         self.addr = None
         self.s = None        
+        self.predictionData = []
+        
         
         if sendMsg:
-            self.open_socket()
+            _thread.start_new_thread(self.open_socket, ())
         else:
             # Check if the saveFile exsits, if not, create a new file
             if saveFile is None:
@@ -188,10 +192,22 @@ class Monitor():
                 # Remove the label
                 data = data[1:]
                 # Make prediction
-                prediction = self.model.predict(data)
-                print("prediction: " + str(prediction))
+                
+                self.predictionData.append(data)
+                
+                if len(self.predictionData) == 4:
+                    del self.predictionData[0]
+                    
+                prediction = self.model.predict(self.predictionData)
+                prediction = prediction[-1] # get the last element
+                
+                if prediction == 0:
+                    print("Prediction: Distracted")
+                else:
+                    print("Prediction: Working")
+                
                 # Send message to the robot
-                self.send_message(state=str(prediction[0]))
+                self.send_message(state=str(prediction))
             
         else: # Log data in a file
             with open(self.saveFile,'a') as f:
@@ -333,6 +349,7 @@ class Monitor():
             self.c = c
             self.addr = addr
             self.s = s
+            self.socketOpen = True
             return True
             
         except OSError as e:
@@ -341,14 +358,10 @@ class Monitor():
             return False
         
     def send_message(self, state = "0"):    
-        
-        socketOpen = False
-        
-        if self.s is None:
-            socketOpen = self.open_socket()
+
             
         try:
-            if socketOpen:
+            if self.socketOpen:
                 print('Sending prediction result \'{}\' to 127.0.0.1:20000'.format(state))
                 self.c.send(state)
                 self.close_socket()

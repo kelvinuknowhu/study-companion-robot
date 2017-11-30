@@ -73,7 +73,7 @@ and open the template in the editor.
         
 
         var affectivaData = null;
-        
+                
         //Add a callback to receive the results from processing an image.
         //The faces object contains the list of the faces detected in an image.
         //Faces object contains probabilities for all the different expressions, emotions and appearance metrics
@@ -105,8 +105,16 @@ and open the template in the editor.
                            new_face_detected=true;
                         }        
                     }
-                }                
+                }    
                 
+                if(!affectivaData){
+                    if(useEmotion){
+                        affectivaData = faces[0].emotions;
+                    }else{
+                        affectivaData = faces[0].expressions;
+                    }    
+                }
+                                
                 if(new_face_detected){
                     if(useEmotion){
                         affectivaData = faces[0].emotions;
