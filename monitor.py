@@ -6,6 +6,8 @@ import requests
 from threading import Event, Thread
 from threading import Timer
 
+import socket
+
 import predict
 
 #from logger import getLogger
@@ -39,8 +41,12 @@ class Monitor():
         self.predictor = None
         self.model = None
         
+        self.c = None
+        self.addr = None
+        self.s = None        
+        
         if sendMsg:
-            pass
+            self.open_socket()
         else:
             # Check if the saveFile exsits, if not, create a new file
             if saveFile is None:
@@ -185,7 +191,7 @@ class Monitor():
                 prediction = self.model.predict(data)
                 print("prediction: " + str(prediction))
                 # Send message to the robot
-                self.model.send_message(state=str(prediction[0]))
+                self.send_message(state=str(prediction[0]))
             
         else: # Log data in a file
             with open(self.saveFile,'a') as f:
@@ -312,6 +318,51 @@ class Monitor():
             print(str(e))
             
             return None, None
+            
+    def open_socket(self):
+        # Provides prediction service for the robot manipulation script
+        try:
+            print("Opening socket connection")
+            s = socket.socket()
+            ip = '127.0.0.1'
+            port = 20000
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            s.bind((ip, port))
+            s.listen(5)
+            c, addr = s.accept()
+            self.c = c
+            self.addr = addr
+            self.s = s
+            return True
+            
+        except OSError as e:
+            print(str(e))
+            self.close_socket()
+            return False
+        
+    def send_message(self, state = "0"):    
+        
+        socketOpen = False
+        
+        if self.s is None:
+            socketOpen = self.open_socket()
+            
+        try:
+            if socketOpen:
+                print('Sending prediction result \'{}\' to 127.0.0.1:20000'.format(state))
+                self.c.send(state)
+                self.close_socket()
+            
+        except OSError:
+            self.close_socket()
+            
+    
+    def close_socket(self):
+        print("Closing socket connection")
+        if self.c:
+            self.c.close()
+        if self.s:
+            self.s.close()               
             
             
 def waitForFileGeneration(filePath,trial=3,interval=1):
