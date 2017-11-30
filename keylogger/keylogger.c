@@ -100,7 +100,7 @@ CGEventRef CGEventCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef e
         }
     }
 
-    if (elapsedTime >= 60) {
+    if (elapsedTime >= 20) {
         // check if this is doable
         fprintf(logfile, "Words: %s\n", data->words);
         fprintf(logfile, "Elapsed Time: %ld\n", elapsedTime);
