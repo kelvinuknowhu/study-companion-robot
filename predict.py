@@ -28,11 +28,12 @@ class Predictor():
         try:
             print("Opening socket connection")
             s = socket.socket()
-            ip = '127.0.0.1'
+            ip = ''
             port = 20000
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             s.bind((ip, port))
             s.listen(5)
+            print 'Server running at (\'192.168.199.1\', 20000) is ready for the robot to poll the prediction result'
             c, addr = s.accept()
             self.c = c
             self.addr = addr

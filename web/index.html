@@ -84,25 +84,42 @@ and open the template in the editor.
             //console.log('#results', "Number of faces found: " + faces.length);
             
             if (faces.length > 0) {
-               console.log('#results', "Appearance: " + JSON.stringify(faces[0].appearance));
-               console.log('#results', "Emotions: " + JSON.stringify(faces[0].emotions, function(key, val) {
-                   return val.toFixed ? Number(val.toFixed(0)) : val;
-               }));
-               console.log('#results', "Expressions: " + JSON.stringify(faces[0].expressions, function(key, val) {
-                   return val.toFixed ? Number(val.toFixed(0)) : val;
-               }));
-               console.log('#results', "Emoji: " + faces[0].emojis.dominantEmoji);
-               drawFeaturePoints(image, faces[0].featurePoints);
+                //console.log('#results', "Appearance: " + JSON.stringify(faces[0].appearance));
+                //console.log('#results', "Emotions: " + JSON.stringify(faces[0].emotions, function(key, val) {
+                //    return val.toFixed ? Number(val.toFixed(0)) : val;
+                //}));
+                console.log('#results', "Expressions: " + JSON.stringify(faces[0].expressions, function(key, val) {
+                    return val.toFixed ? Number(val.toFixed(0)) : val;
+                }));
+                //console.log('#results', "Emoji: " + faces[0].emojis.dominantEmoji);
+                //drawFeaturePoints(image, faces[0].featurePoints);
                 
-                if(useEmotion){
-                    affectivaData = faces[0].emotions;
-                }else{
-                    affectivaData = faces[0].expressions;
+                
+                var new_face_detected = false;
+                
+                currentFace = faces[0];
+                for (var key in currentFace) {
+                    if (currentFace.hasOwnProperty(key)) {
+                        // do stuff
+                        if(currentFace.key != 0){
+                           new_face_detected=true;
+                        }        
+                    }
+                }                
+                
+                if(new_face_detected){
+                    if(useEmotion){
+                        affectivaData = faces[0].emotions;
+                    }else{
+                        affectivaData = faces[0].expressions;
+                    }                    
                 }
             }
-        });    
+        }); 
         
         
+
+
         
         //Draw the detected facial feature points on the image
         function drawFeaturePoints(img, featurePoints) {
