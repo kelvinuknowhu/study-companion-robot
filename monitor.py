@@ -12,11 +12,8 @@ import socket
 
 import predict
 
-#from logger import getLogger
-
 
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
-#logger = getLogger('monitor')
 
 FACIAL_EXPRESSIONS = ['attention','browFurrow','browRaise','cheekRaise','chinRaise','dimpler','eyeClosure','eyeWiden','innerBrowRaise',
                       'jawDrop','lidTighten','lipCornerDepressor','lipPress','lipPucker','lipSuck','mouthOpen','noseWrinkle','smile','smirk','upperLipRaise']
@@ -28,9 +25,6 @@ WEBSITES = {'socialNetwork':['facebook','instagram','twitter','tumblr'],
            'entertainment':['youtube','reddit','buzzfeed','pinterest'],
            'general':['news','blog','board','game','shopping'],
            'work':['github','overleaf','blackboard','qualtrics','surveymonkey','stack overflow']}
-
-
-useEmotion = False
 
 PORT = 8899
 
