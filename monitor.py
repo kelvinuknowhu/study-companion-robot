@@ -328,7 +328,7 @@ class Monitor():
         try:
             print("Opening socket connection")
             s = socket.socket()
-            ip = "127.0.0.1"
+            ip = ""
             port = 20000
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             s.bind((ip, port))

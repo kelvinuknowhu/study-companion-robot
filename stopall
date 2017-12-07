@@ -1,1 +1,2 @@
-sudo lsof -i TCP:20000 | grep python | awk '{print $2}' | xargs kill -9
+sudo lsof -i TCP:8899 | grep Python | awk '{print $2}' | xargs sudo kill -9
+sudo lsof -i TCP:20000 | grep Python | awk '{print $2}' | xargs sudo kill -9
