@@ -3,6 +3,7 @@ __pycache__/*
 *.log
 *.pyc
 *.ipynb
+*~
 ipynb_checkpoints/*
 keylogger/*~
 simple_head/*~
