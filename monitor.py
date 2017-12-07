@@ -97,14 +97,12 @@ class Monitor():
         else:
             var = input("Please enter 'w' for working state, and 'd' for distracted state. Enter 'x' to stop recording data")
 
-            if var == "w":
+            if var == 'w':
                 timer.stop()
-                self.run('working')
-
-            elif var == "d":
+                self.run("working")
+            elif var == 'd':
                 timer.stop()            
-                self.run('distracted')
-
+                self.run("distracted")
             else:
                 timer.stop()
         
@@ -114,7 +112,7 @@ class Monitor():
         data = []
         ind = 0
         
-        if state=="working":
+        if state == "working":
             data.append(1)
         else: # distracted
             data.append(0)
@@ -187,7 +185,7 @@ class Monitor():
         
         if self.sendMsg: # Send data to the robot
             if self.model is None:
-                raise ValueError("Model not set up")
+                raise ValueError("Model is not set up")
             else:
                 # Remove the label
                 data = data[1:]
@@ -207,7 +205,7 @@ class Monitor():
                     print("Prediction: Working")
                 
                 # Send message to the robot
-                self.send_message(state=str(prediction))
+                self.send_message(state = str(prediction))
             
         else: # Log data in a file
             with open(self.saveFile,'a') as f:
@@ -232,11 +230,7 @@ class Monitor():
             with open(keyloggerData, 'r') as f: 
                 counter = 0
                 for line in f:
-                    if line.isspace():
-                        pass
-                    elif "--------------------" in line:
-                        pass
-                    elif "Words: " in line:
+                    if "Words: " in line:
                         words = line.split()
                         numWords.append(len(words))
                     elif "Elapsed Time: " in line:
@@ -340,7 +334,7 @@ class Monitor():
         try:
             print("Opening socket connection")
             s = socket.socket()
-            ip = '127.0.0.1'
+            ip = "127.0.0.1"
             port = 20000
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             s.bind((ip, port))
@@ -357,9 +351,7 @@ class Monitor():
             self.close_socket()
             return False
         
-    def send_message(self, state = "0"):    
-
-            
+    def send_message(self, state = "0"):
         try:
             if self.socketOpen:
                 print('Sending prediction result \'{}\' to 127.0.0.1:20000'.format(state))

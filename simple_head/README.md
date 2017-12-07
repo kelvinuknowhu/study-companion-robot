@@ -5,7 +5,7 @@
 You should be able to run the nodes in this package by simply launching the `simple_head.launch` file. Depends on [dynamixel_controller](http://wiki.ros.org/dynamixel_controllers)
 
 ```
-roslaunch simple_head.launch
+roslaunch study_pose.launch
 ```
 
 ### Customize poses
