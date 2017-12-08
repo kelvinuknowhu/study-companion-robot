@@ -107,26 +107,23 @@ and open the template in the editor.
                     }
                 }    
                 
-                if(!affectivaData){
-                    if(useEmotion){
+                if (!affectivaData){
+                    if (useEmotion){
                         affectivaData = faces[0].emotions;
-                    }else{
+                    } else{
                         affectivaData = faces[0].expressions;
                     }    
                 }
                                 
-                if(new_face_detected){
-                    if(useEmotion){
+                if (new_face_detected){
+                    if (useEmotion){
                         affectivaData = faces[0].emotions;
-                    }else{
+                    } else{
                         affectivaData = faces[0].expressions;
                     }                    
                 }
             }
         }); 
-        
-        
-
 
         
         //Draw the detected facial feature points on the image
@@ -143,7 +140,6 @@ and open the template in the editor.
                 contxt.arc(featurePoints[id].x,
                 featurePoints[id].y, 2, 0, 2 * Math.PI);
                 contxt.stroke();
-
             }
         }        
         
@@ -156,7 +152,6 @@ and open the template in the editor.
           - err_detail: A string contains the encountered exception.
         */
         detector.addEventListener("onImageResultsFailure", function (image, timestamp, err_detail) {});        
-        
         
         detector.addEventListener("onResetSuccess", function() {});
         detector.addEventListener("onResetFailure", function() {});        
@@ -194,18 +189,15 @@ and open the template in the editor.
         var ws = new WebSocket("ws://localhost:" + port + "/websocket");
         
         ws.onopen = function() {
-           //ws.send("Web Socket Connection Made");
-            console.log('Web Socket Conenction Made');
+            console.log("Web Socket Conenction Made");
         };
         
-        ws.onmessage = function (data) { 
-            if(data.data=='request_facial_expression'){                
-                console.log('Facial expression request received')
+        ws.onmessage = function(data) { 
+            if(data.data == "request_facial_expression"){                
+                console.log("Facial expression request received")
                 ws.send(JSON.stringify(affectivaData));         
             } 
         }
-        
-    
     </script>
     
 </body>

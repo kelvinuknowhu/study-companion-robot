@@ -48,9 +48,9 @@ class Monitor():
         else:
             # Check if the saveFile exsits, if not, create a new file
             if saveFile is None:
-                self.saveFile = os.path.join(DIR_PATH,"data","test.txt")
+                self.saveFile = os.path.join(DIR_PATH, "data", "test.txt")
             else:
-                self.saveFile = os.path.join(DIR_PATH,"data",saveFile)
+                self.saveFile = os.path.join(DIR_PATH, "data", saveFile)
 
             print("Created a new file at: {0}".format(self.saveFile))
             open(self.saveFile, 'w').close()    
@@ -124,9 +124,7 @@ class Monitor():
         for key in facial_expression:
             if facial_expression[key] != 0:
                 allZero = False
-
         if allZero:
-            print("Facial expression not found")
             for key in FACIAL_EXPRESSIONS:
                 facial_expression[key] = self.last_facial_expression_stored[key]                    
         else:
@@ -199,10 +197,10 @@ class Monitor():
                     print("Prediction: Working")
                 
                 # Send message to the robot
-                self.send_message(state = str(prediction))
+                self.send_message(str(prediction))
             
         else: # Log data in a file
-            with open(self.saveFile,'a') as f:
+            with open(self.saveFile, 'a') as f:
                 out = [str(x) for x in data]
                 f.write(",".join(out))
                 f.write('\n')
@@ -248,7 +246,7 @@ class Monitor():
 
     
     def request_facial_expression(self):
-        requests.post('http://localhost:{0}/get-facial-expression'.format(PORT), data = {'key':'value'})
+        requests.post("http://localhost:{0}/get-facial-expression".format(PORT), data = {'key':'value'})
         
     def read_facial_expression(self):
         data_file = os.path.join(DIR_PATH, "web", "facial_expressions.txt")        
@@ -258,7 +256,6 @@ class Monitor():
             facial_expressions = {}            
             
             with open(data_file, 'r') as f: 
-
                 for i, line in enumerate(f):
                     if line.isspace():
                         pass
@@ -266,11 +263,10 @@ class Monitor():
                         lineSplit = line.split(":")
                         number = float(lineSplit[1].strip())
                         facial_expressions[lineSplit[0]] = number
-            os.remove(data_file)
             return facial_expressions
 
         except OSError as e:
-            print('Facial expression not recognized')
+            print("Encountered trouble in reading facial_expressions.txt")
             print(str(e))
             facial_expressions = {}
             for exp in FACIAL_EXPRESSIONS:
@@ -278,11 +274,11 @@ class Monitor():
             return facial_expressions            
                         
     def write_open_windows(self):
-        script_path = os.path.join(DIR_PATH,"applescript","windows_monitor.scpt")
-        subprocess.check_call("osascript {0}".format(script_path),shell=True)    
+        script_path = os.path.join(DIR_PATH, "applescript", "windows_monitor.scpt")
+        subprocess.check_call("osascript {0}".format(script_path), shell=True)    
 
     def read_open_windows(self):
-        data_file = os.path.join(DIR_PATH,"applescript","open_windows.txt")
+        data_file = os.path.join(DIR_PATH, "applescript", "open_windows.txt")
         
         waitForFileGeneration(data_file)
         
@@ -298,11 +294,11 @@ class Monitor():
                 for i, line in enumerate(f):
                     if line.isspace():
                         pass
-                    elif '-----' in line:
+                    elif "-----" in line:
                         inputType += 1
                     else:
-                        if inputType==0: # Active chrome tab URL & title
-                            if i==0:
+                        if inputType == 0: # Active chrome tab URL & title
+                            if i == 0:
                                 active_tab_URL = line
                             else:
                                 active_tab_title = line
@@ -318,7 +314,7 @@ class Monitor():
             return active_tab_title, open_tab_title
 
         except Error as e:
-            print('Error in reading the window monitor file')
+            print("Error in reading the window monitor file")
             print(str(e))
             
             return None, None
@@ -348,10 +344,8 @@ class Monitor():
     def send_message(self, state = "0"):
         try:
             if self.socketOpen:
-                print('Sending prediction result \'{}\' to 127.0.0.1:20000'.format(state))
-                self.c.send(state)
-                self.close_socket()
-            
+                print("Sending prediction result \"{}\" to 127.0.0.1:20000".format(state))
+                self.c.send(state.encode())            
         except OSError:
             self.close_socket()
             
@@ -364,11 +358,12 @@ class Monitor():
             self.s.close()               
             
             
-def waitForFileGeneration(filePath,trial=3,interval=1):
+def waitForFileGeneration(filePath, trial = 3, interval = 1):
     max_i = trial
     for i in range(max_i):
         try:
-            with open(filePath, 'rb') as _:
+            with open(filePath, 'r') as f:
+                f.close()
                 break
         except IOError:
             time.sleep(interval)
