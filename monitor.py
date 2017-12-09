@@ -125,6 +125,7 @@ class Monitor():
             if facial_expression[key] != 0:
                 allZero = False
         if allZero:
+            print("Using the last facial expression data...")
             for key in FACIAL_EXPRESSIONS:
                 facial_expression[key] = self.last_facial_expression_stored[key]                    
         else:
@@ -189,8 +190,7 @@ class Monitor():
                     del self.predictionData[0]
                     
                 prediction = self.model.predict(self.predictionData)
-                prediction = prediction[-1] # get the last element
-                
+                prediction = prediction[-1] # Get the last element
                 if prediction == 0:
                     print("Prediction: Distracted")
                 else:
